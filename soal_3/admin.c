@@ -157,3 +157,4 @@ int main(int argc, char *argv[]) {
     }
 return 0;
 }
+// Kekurangannya kadang Error tidak bisa untuk melakukan ./admin -s, program tidak berhenti
