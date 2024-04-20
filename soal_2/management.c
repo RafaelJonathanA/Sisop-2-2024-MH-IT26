@@ -58,5 +58,12 @@ int main(int argc, char *argv[]){
     }
 
 
+  /*
+  program tersebut belum menyelesaikan tahap dekripsi menggunakan ROT19, program ini juga belum menyelesaikan tahap merename sesuai kode nama filenya
+  dan menghapus sesuai kode nama filenya, tahap backup dan restore file belum selesai, tahap mengganti mode sesuai signal belum selesai,
+  belum menyelesaikan code untuk dimatikan secara aman, dan pencatatan log file belum selesai
+  */
+
+
     return 0;
 }
