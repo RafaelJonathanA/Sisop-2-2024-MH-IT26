@@ -59,7 +59,163 @@ Pd&f8$F5=E?@#[6jd{TJKj][SPYWARE]{KK1?hz384$ge@iba5GAj$gqB41
 #C&&a}M9C#f64Eb.?%c)dGbCvJXtU[?SE4h]BY4e1P[RANSOMWARE]{]S/{w?*
 ```
 ## ***PENGERJAAN***
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <time.h>
 
+void mengubah_karakter(char *filename) {
+    FILE *file;
+    char line[256]; // Array untuk menyimpan setiap baris
+    char temp_file[256]; // File sementara untuk menyimpan hasil perubahan
+    int masuk_log = 0; // Tanda untuk menandakan apakah ada string yang berhasil diganti di file tersebut
+
+    // Membuat file sementara
+    sprintf(temp_file, "%s.tmp", filename);
+    file = fopen(temp_file, "w");
+    if (file == NULL) {
+        return;
+    }
+
+    // Membuka file yang akan diubah
+    FILE *original_file = fopen(filename, "r");
+    if (original_file == NULL) {
+        fclose(file);
+        return;
+    }
+
+    while (fgets(line, sizeof(line), original_file) != NULL) {
+        char *kata = line;
+        char *new_kata;
+
+        while ((new_kata = strstr(kata, "m4LwAr3")) != NULL) {
+            strncpy(new_kata, "[MALWARE]", strlen("[MALWARE]"));
+            kata = new_kata + strlen("[MALWARE]");
+            masuk_log = 1; // Set string ke 1 karena string berhasil diganti
+        }
+
+        kata = line;
+        while ((new_kata = strstr(kata, "5pYw4R3")) != NULL) {
+            strncpy(new_kata, "[SPYWARE]", strlen("[SPYWARE]"));
+            kata = new_kata + strlen("[SPYWARE]");
+            masuk_log = 1;
+        }
+
+        kata = line;
+        while ((new_kata = strstr(kata, "R4nS0mWaR3")) != NULL) {
+            strncpy(new_kata, "[RANSOMWARE]", strlen("[RANSOMWARE]"));
+            kata = new_kata + strlen("[RANSOMWARE]");
+            masuk_log = 1;
+        }
+
+        fputs(line, file); // Menulis baris yang telah diubah ke file sementara
+    }
+
+    fclose(original_file);
+    fclose(file);
+
+    // Mengganti file asli dengan file sementara
+    remove(filename);
+    rename(temp_file, filename);
+
+    if (masuk_log) {
+        FILE *log_file = fopen("home/ubuntu/SISOP/Modul2/soal_1/virus.log", "a");
+        if (log_file != NULL) {
+            time_t current_time = time(NULL);
+            struct tm tm = *localtime(&current_time);
+            fprintf(log_file, "[%02d-%02d-%04d][%02d:%02d:%02d] Suspicious string at %s successfully replaced!\n", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec, filename);
+            fclose(log_file);
+        }
+    }
+
+    // Reset nilai string ke 0 untuk penggunaan berikutnya
+    masuk_log = 0;
+}
+void pencarian_direktori(char *directory_path) {
+    DIR *dir;
+    struct dirent *entry;
+
+    dir = opendir(directory_path);
+    if (dir == NULL) {
+        return;
+    }
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue; // Skip directory 
+        }
+
+        // Skip file selain .txt
+        size_t len = strlen(entry->d_name);
+        if (len < 4 || strcmp(entry->d_name + len - 4, ".txt") != 0) {
+            continue;
+        }
+
+        char full_path[strlen(directory_path) + strlen(entry->d_name) + 2];
+        snprintf(full_path, sizeof(full_path), "%s/%s", directory_path, entry->d_name);
+
+        FILE *file = fopen(full_path, "r");
+        if (file != NULL) {
+            mengubah_karakter(full_path); // memanggil funngsi ubah karakter 
+            fclose(file);
+        }
+    }
+
+    closedir(dir);
+}
+
+int main(int argc, char *argv[]) {
+    pid_t pid, sid; // Variabel untuk menyimpan PID
+
+    pid = fork(); // Menyimpan PID dari child Psoses 
+
+    /* Keluar saat fork gagal
+    * (nilai variabel pid < 0) */
+    if (pid < 0) {
+        exit(EXIT_FAILURE);
+    }
+
+    /* Keluar saat fork berhasil
+    * (nilai variabel pid adalah PID dari child process) */
+    if (pid > 0) {
+        exit(EXIT_SUCCESS);
+    }
+   
+    umask(0);
+
+    sid = setsid();
+    if (sid < 0) {
+        exit(EXIT_FAILURE);
+    }
+
+    if ((chdir("/")) < 0) {
+        exit(EXIT_FAILURE);
+    }
+
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+
+    while (1) {
+        
+        if (argc < 2) {
+            exit(EXIT_FAILURE);
+        }
+
+        pencarian_direktori(argv[1]);
+
+        sleep(15); // Jeda setiap 15 detik
+    }
+
+    exit(EXIT_SUCCESS);
+}
+```
 ## ***PENJELASAN PENGERJAAN***
 
 ## ***Dokumentasi***
@@ -201,7 +357,129 @@ Command ini hanya mematikan aplikasi yang dijalankan dengan
 setup -f file.conf
 ```
 ## ***PENGERJAAN***
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <string.h>
+#include <signal.h>
 
+// Prototipe fungsi
+void save_running_app(pid_t pid);
+// Fungsi membuka aplikasi
+void open_app(char *app_name, int num_windows, pid_t *pids, int *pid_count) {
+    for (int i = 0; i < num_windows; i++) {
+        pid_t pid = fork();
+        if (pid == 0) {
+            // Child proses, ngejalanin aplikasi
+            execlp(app_name, app_name, NULL);
+            perror("execlp");
+            exit(1);
+        } else if (pid < 0) {
+            perror("fork");
+            exit(1);
+        } else {
+            // Simpan PID kedalam file log
+            pids[*pid_count] = pid;
+            (*pid_count)++;
+            usleep(10000); 
+            save_running_app(pid);
+        }
+    }
+}
+// Fungsi membaca konfigurasi dari file
+void read_config_file(char *file_name, pid_t *pids, int *pid_count) {
+    FILE *file = fopen(file_name, "r");
+    if (file == NULL) {
+        perror("fopen");
+        exit(1);
+    }
+    char app_name[256];
+    int num_windows;
+    while (fscanf(file, "%s %d", app_name, &num_windows) != EOF) {
+        open_app(app_name, num_windows, pids, pid_count);
+    }
+    fclose(file);
+}
+// Fungsi mematikan aplikasi berdasarkan PID
+void kill_apps(pid_t *pids, int pid_count) {
+    if (pid_count == 0) {
+        printf("Tidak ada aplikasi.\n");
+        return;
+    }    
+    for (int i = 0; i < pid_count; i++) {
+        kill(pids[i], SIGTERM);
+    }   
+    // Menunggu child proses selesai
+    while (wait(NULL) > 0);
+}
+// Fungsi menyimpan PID aplikasi yang di run kedalam file log
+void save_running_app(pid_t pid) {
+    FILE *log_file = fopen("Berjalan", "a");
+    if (log_file == NULL) {
+        perror("Error opening log file");
+        exit(1);
+    }
+    fprintf(log_file, "%d\n", pid);
+    fclose(log_file);
+}
+// Fungsi membaca PID aplikasi dari file log dan melakukan kill
+void kill_apps_from_log() {
+    FILE *log_file = fopen("Berjalan", "r");
+    if (log_file == NULL) {
+        printf("Tidak ada aplikasi.\n");
+        return;
+    }
+    pid_t pid;
+    while (fscanf(log_file, "%d", &pid) != EOF) {
+        if (kill(pid, SIGTERM) == -1) {
+            perror("Error killing process");
+        } else {
+            printf("Killed process with PID: %d\n", pid);
+        }
+    }
+    fclose(log_file);
+    remove("berjalan"); // Hapus file log setelah selesai melakukan kill
+}
+// Fungsi Main untuk memilih opsi program yang dijalankan
+int main(int argc, char *argv[]) {
+    pid_t pids[100]; 
+    int pid_count = 0;
+
+    // Menghilangkan peringatan Gtk
+    putenv("GTK_MODULES=");
+
+    if (argc < 2) {
+        printf("Usage: setup -o <app1> <num1> <app2> <num2>... or setup -f <file.conf> or setup -k\n");
+        return 1;
+    }
+    if (strcmp(argv[1], "-o") == 0) {
+        // Membuka aplikasi dengan perintah
+        for (int i = 2; i < argc; i += 2) {
+            int num_windows = atoi(argv[i + 1]);
+            open_app(argv[i], num_windows, pids, &pid_count);
+        }
+    } else if (strcmp(argv[1], "-f") == 0) {
+        // Membaca konfigurasi dari file
+        if (argc != 3) {
+            printf("Usage: setup -f <file.conf>\n");
+            return 1;
+        }
+        read_config_file(argv[2], pids, &pid_count);
+    } else if (strcmp(argv[1], "-k") == 0) {
+        // Mematikan aplikasi
+        kill_apps(pids, pid_count);
+        // Menjalankan fungsi untuk melakukan kill berdasarkan file log
+        kill_apps_from_log();
+    } else {
+        printf("Invalid option\n");
+        return 1;
+    }
+return 0;
+}
+```
 ## ***PENJELASAN PENGERJAAN***
 
 ## ***Dokumentasi***
