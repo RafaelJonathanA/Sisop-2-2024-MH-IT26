@@ -481,6 +481,21 @@ return 0;
 }
 ```
 ## ***PENJELASAN PENGERJAAN***
+*Library*
+- #include <stdio.h> = untuk input-output program c
+
+- #include <stdlib.h> = untuk fungsi-fungsi umum seperti alokasi memori dan konversi
+
+- #include <unistd.h> = untuk system call POSIX 
+
+- #include <sys/types.h> = untuk tipe data khusus sistem
+
+- #include <sys/wait.h> =  untuk fungsi-fungsi yang berhubungan dengan penungguan proses
+
+- #include <string.h> =  untuk manipulasi string
+
+- #include <signal.h> = untuk menangani sinyal dan pengontrolan proses
+
 
 ## ***Dokumentasi***
 
