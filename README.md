@@ -481,7 +481,7 @@ return 0;
 }
 ```
 ## ***PENJELASAN PENGERJAAN***
-*Library*
+1. *Library*
 - #include <stdio.h> = untuk input-output program c
 
 - #include <stdlib.h> = untuk fungsi-fungsi umum seperti alokasi memori dan konversi
@@ -496,6 +496,7 @@ return 0;
 
 - #include <signal.h> = untuk menangani sinyal dan pengontrolan proses
 
+2. *void save_running_app(pid_t pid)*
 
 ## ***Dokumentasi***
 
