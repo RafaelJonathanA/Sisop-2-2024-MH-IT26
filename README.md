@@ -481,7 +481,15 @@ return 0;
 }
 ```
 ## ***PENJELASAN PENGERJAAN***
-1. *Library*
+*Salomo ingin dapat membuka berbagai macam aplikasi dengan banyak jendela aplikasi dalam satu command. Namai file program tersebut setup.c*
+
+Pertama mkdir untuk membuat directory, disini saya menamai direktori dengan soal4, kemudian nano untuk membuat text book yang dinamai dengan setup.c sesuai dengan keterangan soal
+`mkdir soal4`
+`nano setup.c`
+
+*Program C sesuai yang diminta di soal beserta penjelasan fungsi fungsi pada programnya*
+Pertama kita buat untuk program C
+`Library`
 - #include <stdio.h> = untuk input-output program c
 
 - #include <stdlib.h> = untuk fungsi-fungsi umum seperti alokasi memori dan konversi
@@ -496,8 +504,149 @@ return 0;
 
 - #include <signal.h> = untuk menangani sinyal dan pengontrolan proses
 
-2. *void save_running_app(pid_t pid)*
+`void save_running_app(pid_t pid)`
 
+Fungsi save_running_app(pid_t pid) berfungsi untuk menyimpan PID aplikasi yang sedang berjalan ke dalam file log
+```
+void open_app(char *app_name, int num_windows, pid_t *pids, int *pid_count) {
+    for (int i = 0; i < num_windows; i++) {
+        pid_t pid = fork();
+        if (pid == 0) {
+            // Child proses, ngejalanin aplikasi
+            execlp(app_name, app_name, NULL);
+            perror("execlp");
+            exit(1);
+        } else if (pid < 0) {
+            perror("fork");
+            exit(1);
+        } else {
+            // Simpan PID kedalam file log
+            pids[*pid_count] = pid;
+            (*pid_count)++;
+            usleep(10000); 
+            save_running_app(pid);
+        }
+    }
+}
+```
+- Fungsi ini digunakan untuk membuka aplikasi. Menerima nama aplikasi, jumlah jendela, array PID, dan jumlah PID yang digunakan sebagai argumen.
+- Menggunakan fork() untuk membuat proses baru dan execlp() untuk menjalankan aplikasi.
+- Setelah menjalankan aplikasi, PID disimpan dan ditambahkan ke file log.
+```
+void read_config_file(char *file_name, pid_t *pids, int *pid_count) {
+    FILE *file = fopen(file_name, "r");
+    if (file == NULL) {
+        perror("fopen");
+        exit(1);
+    }
+    char app_name[256];
+    int num_windows;
+    while (fscanf(file, "%s %d", app_name, &num_windows) != EOF) {
+        open_app(app_name, num_windows, pids, pid_count);
+    }
+    fclose(file);
+}
+```
+- Fungsi ini membaca konfigurasi dari file.
+- Menerima nama file, array PID, dan jumlah PID sebagai argumen.
+- Setiap baris file membaca nama aplikasi dan jumlah jendela, dan kemudian memanggil open_app().
+```
+void kill_apps(pid_t *pids, int pid_count) {
+    if (pid_count == 0) {
+        printf("Tidak ada aplikasi.\n");
+        return;
+    }    
+    for (int i = 0; i < pid_count; i++) {
+        kill(pids[i], SIGTERM);
+    }   
+    // Menunggu child proses selesai
+    while (wait(NULL) > 0);
+}
+```
+- Fungsi ini digunakan untuk mematikan aplikasi berdasarkan PID.
+- Menerima array PID dan jumlah PID sebagai argumen.
+- Mengirimkan sinyal SIGTERM ke setiap PID yang disimpan.
+```
+void save_running_app(pid_t pid) {
+    FILE *log_file = fopen("Berjalan", "a");
+    if (log_file == NULL) {
+        perror("Error opening log file");
+        exit(1);
+    }
+    fprintf(log_file, "%d\n", pid);
+    fclose(log_file);
+}
+```
+- Fungsi ini menyimpan PID aplikasi yang dijalankan ke dalam file log.
+- Menerima PID aplikasi sebagai argumen.
+- Membuka file log, menulis PID, dan menutup file log.
+```
+void kill_apps_from_log() {
+    FILE *log_file = fopen("Berjalan", "r");
+    if (log_file == NULL) {
+        printf("Tidak ada aplikasi.\n");
+        return;
+    }
+    pid_t pid;
+    while (fscanf(log_file, "%d", &pid) != EOF) {
+        if (kill(pid, SIGTERM) == -1) {
+            perror("Error killing process");
+        } else {
+            printf("Killed process with PID: %d\n", pid);
+        }
+    }
+    fclose(log_file);
+    remove("berjalan"); // Hapus file log setelah selesai melakukan kill
+}
+```
+- Fungsi ini membaca PID aplikasi dari file log dan mematikan aplikasi.
+- Membuka file log, membaca PID, dan mengirimkan sinyal SIGTERM ke setiap PID.
+- Setelah selesai, file log dihapus.
+```
+int main(int argc, char *argv[]) {
+    pid_t pids[100]; 
+    int pid_count = 0;
+
+    // Menghilangkan peringatan Gtk
+    putenv("GTK_MODULES=");
+
+    if (argc < 2) {
+        printf("Usage: setup -o <app1> <num1> <app2> <num2>... or setup -f <file.conf> or setup -k\n");
+        return 1;
+    }
+    if (strcmp(argv[1], "-o") == 0) {
+        // Membuka aplikasi dengan perintah
+        for (int i = 2; i < argc; i += 2) {
+            int num_windows = atoi(argv[i + 1]);
+            open_app(argv[i], num_windows, pids, &pid_count);
+        }
+    } else if (strcmp(argv[1], "-f") == 0) {
+        // Membaca konfigurasi dari file
+        if (argc != 3) {
+            printf("Usage: setup -f <file.conf>\n");
+            return 1;
+        }
+        read_config_file(argv[2], pids, &pid_count);
+    } else if (strcmp(argv[1], "-k") == 0) {
+        // Mematikan aplikasi
+        kill_apps(pids, pid_count);
+        // Menjalankan fungsi untuk melakukan kill berdasarkan file log
+        kill_apps_from_log();
+    } else {
+        printf("Invalid option\n");
+        return 1;
+    }
+return 0;
+}
+```
+Fungsi utama program.
+
+- Memeriksa argumen baris perintah untuk menentukan tindakan apa yang diambil.
+- Jika argumen adalah -o, program membuka aplikasi dengan argumen baris perintah.
+- Jika argumen adalah -f, program membaca konfigurasi dari file.
+- Jika argumen adalah -k, program mematikan aplikasi.
+- Jika argumen tidak valid, program mencetak pesan kesalahan.
+  
 ## ***Dokumentasi***
 
 NB: Semua soal tidak boleh dikerjakan menggunakan fungsi **system()**. Di utamakan menggunakan fungsi **fork()** atau **exec()**.
