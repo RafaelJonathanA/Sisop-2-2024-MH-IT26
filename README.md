@@ -406,6 +406,12 @@ Command yang digunakan dalam pengerjaan ini adalah :
 #### Error kedua yang pernah dialami adalah saat memasukkan ke log dengan cara satu-satu dimana setiap kali string ada yang diganti akan dimasukkan ke log sehingga bila ada beberapa string yang harus diganti lognya akan beberapa kali juga bukan hanya satu kali dan masalah ini di fiks dengan membuat indikator masuk_log
 
 ## ***Dokumentasi***
+![Modul2(6)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150375098/d4c8db9e-1eee-4d8c-9b57-9e6e69a60dc1)
+![Dokum Modul2(4)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150375098/c416cb55-54ce-426c-86dd-d5e031544c50)
+![Dokum modul 2(1)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150375098/cbfd84d6-3bdb-4a51-ba01-eca350e1dbf9)
+![Dokum modul2(3)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150375098/895db0c0-8b23-4ee7-954d-e56741ce4a31)
+![Dokum Modul2(2)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150375098/c00c5861-ecb7-4494-b2b6-8a5b06b11365)
+![Dokum modul2](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150375098/71b3894c-e0c3-47d5-93db-7de0139c8b0e)
 
 ## ***SOAL 2 (Abhinaya)***
 Paul adalah seorang mahasiswa semester 4 yang diterima magang di perusahaan XYZ. Pada hari pertama magang, ia diberi tugas oleh atasannya untuk membuat program manajemen file sederhana. Karena kurang terbiasa dengan bahasa C dan environment Linux, ia meminta bantuan kalian untuk mengembangkan program tersebut.
