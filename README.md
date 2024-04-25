@@ -402,6 +402,8 @@ Command yang digunakan dalam pengerjaan ini adalah :
 19. close(STDIN_FILENO), close(STDOUT_FILENO), berfungsi untuk menutup file-file. 
 20. sleep(15): Menunda eksekusi program selama 15 detik.
 ```
+#### Error yang pernah terjadi adalah bila terdapat lebih dari 1 string yang diminta diubah dalam satu file maka akan mengubah salah satunya saja, dan hal ini dapat fiks dengan membuat file sementara terlebih dahulu dan tidak langsung mengubah di file aslinya. 
+#### Error kedua yang pernah dialami adalah saat memasukkan ke log dengan cara satu-satu dimana setiap kali string ada yang diganti akan dimasukkan ke log sehingga bila ada beberapa string yang harus diganti lognya akan beberapa kali juga bukan hanya satu kali dan masalah ini di fiks dengan membuat indikator masuk_log
 
 ## ***Dokumentasi***
 
