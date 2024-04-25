@@ -217,6 +217,191 @@ int main(int argc, char *argv[]) {
 }
 ```
 ## ***PENJELASAN PENGERJAAN***
+#### Pertama-tama saya membuat sebuah fungsi **mengubah_karakter** yang berfungsi untuk membuka file, mencari string yang sama dengan yang diminta lalu mengubah string tersebut bila ada pada teks tersebut dan terakhir memasukkan ke dalam log setiap ada perubahan string. Pada fungsi inipun saya membuat indikator **masuk_log** dimana apabila terjadi perubahan string maka indikator masuk_log akan menjadi true dan sehingga nantinya akan dimasukkan ke log pada satu file maksimal satu kali saja masuk log dalam satu waktu.
+```
+void mengubah_karakter(char *filename) {
+    FILE *file;
+    char line[256]; // Array untuk menyimpan setiap baris
+    char temp_file[256]; // File sementara untuk menyimpan hasil perubahan
+    int masuk_log = 0; // Tanda untuk menandakan apakah ada string yang berhasil diganti di file tersebut
+
+    // Membuat file sementara
+    sprintf(temp_file, "%s.tmp", filename);
+    file = fopen(temp_file, "w");
+    if (file == NULL) {
+        return;
+    }
+
+    // Membuka file yang akan diubah
+    FILE *original_file = fopen(filename, "r");
+    if (original_file == NULL) {
+        fclose(file);
+        return;
+    }
+
+    while (fgets(line, sizeof(line), original_file) != NULL) {
+        char *kata = line;
+        char *new_kata;
+
+        while ((new_kata = strstr(kata, "m4LwAr3")) != NULL) {
+            strncpy(new_kata, "[MALWARE]", strlen("[MALWARE]"));
+            kata = new_kata + strlen("[MALWARE]");
+            masuk_log = 1; // Set string ke 1 karena string berhasil diganti
+        }
+
+        kata = line;
+        while ((new_kata = strstr(kata, "5pYw4R3")) != NULL) {
+            strncpy(new_kata, "[SPYWARE]", strlen("[SPYWARE]"));
+            kata = new_kata + strlen("[SPYWARE]");
+            masuk_log = 1;
+        }
+
+        kata = line;
+        while ((new_kata = strstr(kata, "R4nS0mWaR3")) != NULL) {
+            strncpy(new_kata, "[RANSOMWARE]", strlen("[RANSOMWARE]"));
+            kata = new_kata + strlen("[RANSOMWARE]");
+            masuk_log = 1;
+        }
+
+        fputs(line, file); // Menulis baris yang telah diubah ke file sementara
+    }
+
+    fclose(original_file);
+    fclose(file);
+
+    // Mengganti file asli dengan file sementara
+    remove(filename);
+    rename(temp_file, filename);
+
+    if (masuk_log) {
+        FILE *log_file = fopen("home/ubuntu/SISOP/Modul2/soal_1/virus.log", "a");
+        if (log_file != NULL) {
+            time_t current_time = time(NULL);
+            struct tm tm = *localtime(&current_time);
+            fprintf(log_file, "[%02d-%02d-%04d][%02d:%02d:%02d] Suspicious string at %s successfully replaced!\n", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec, filename);
+            fclose(log_file);
+        }
+    }
+
+    // Reset nilai string ke 0 untuk penggunaan berikutnya
+    masuk_log = 0;
+}
+```
+Pada kode diatas dapat kita lihat alurnya dimana pertama membuat file sementara lalu membuka file dan kemudian mengecek apaakah aada kata-kata spesifik di dalam file tersebut bila ada maka akan menulis baris yang diubah ke file sementara lalu mengubah file sementara dengan file asli dengan tetap mempertahankan nama file yang sama lalu indikator masuk_log akan menjadi satu sehingga saat dbawah terdapat kode yang akan membuat laopran ke log apabila masuk_log adalah trus atau 1. dan setelah selesai menulis ke log makan indikator masuk_log akan diubah menjadi 0 lagi untuk digunakan saat mengecek file lainnya. 
+
+#### Pada fungsi yang kedua adalah pencarian_direktori dimana Fungsi ini bertugas untuk mencari file dengan ekstensi **.txt** pada suatu direktori dan memanggil fungsi mengubah_karakter() untuk setiap file.txt yang ditemukan. 
+```
+void pencarian_direktori(char *directory_path) {
+    DIR *dir;
+    struct dirent *entry;
+
+    dir = opendir(directory_path);
+    if (dir == NULL) {
+        return;
+    }
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue; // Skip directory 
+        }
+
+        // Skip file selain .txt
+        size_t len = strlen(entry->d_name);
+        if (len < 4 || strcmp(entry->d_name + len - 4, ".txt") != 0) {
+            continue;
+        }
+
+        char full_path[strlen(directory_path) + strlen(entry->d_name) + 2];
+        snprintf(full_path, sizeof(full_path), "%s/%s", directory_path, entry->d_name);
+
+        FILE *file = fopen(full_path, "r");
+        if (file != NULL) {
+            mengubah_karakter(full_path); // memanggil funngsi ubah karakter 
+            fclose(file);
+        }
+    }
+
+    closedir(dir);
+}
+```
+Pada fungsi ini pertama-tama menerima path direktori dari user, setelah itu membuka path direktori yang telah ditentukan sebelumnya dan saat masuk direktori akan melewati entri . dan .. dan juga akan menskip file yang selain .txt, dan saat menemukan file .txt akan memanggil fungsi yang sebelumnya yaitu fungsi mengubah_karakter dan ini akan diulangi secara terus menerus hingga semua file yang ada di diectory tersebut sudah diperiksa dan yang terakhir adalah menutup directorynya. 
+
+#### Terakhir adalah memuat mainnya, main merukan fungsi utama yang akan dijalankan oleh program, di main akan menerika path directory dan dijalankan secara daemon. 
+```
+int main(int argc, char *argv[]) {
+    pid_t pid, sid; // Variabel untuk menyimpan PID
+
+    pid = fork(); // Menyimpan PID dari child Psoses 
+
+    /* Keluar saat fork gagal
+    * (nilai variabel pid < 0) */
+    if (pid < 0) {
+        exit(EXIT_FAILURE);
+    }
+
+    /* Keluar saat fork berhasil
+    * (nilai variabel pid adalah PID dari child process) */
+    if (pid > 0) {
+        exit(EXIT_SUCCESS);
+    }
+   
+    umask(0);
+
+    sid = setsid();
+    if (sid < 0) {
+        exit(EXIT_FAILURE);
+    }
+
+    if ((chdir("/")) < 0) {
+        exit(EXIT_FAILURE);
+    }
+
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+
+    while (1) {
+        
+        if (argc < 2) {
+            exit(EXIT_FAILURE);
+        }
+
+        pencarian_direktori(argv[1]);
+
+        sleep(15); // Jeda setiap 15 detik
+    }
+
+    exit(EXIT_SUCCESS);
+}
+```
+Pada fungsi main diatas dapat kita lihat pertama-tama kita akan menggunakan argv untuk mendapatkan inputan sebuah path kemudian membuat program berjalan secara daemon dengan mengfork lalu membunuh parentnya lalu saat path yang diberikan ada, maka akan memanggil fungsi pencarian_direktori dan kemudian akan keluar dari program. 
+
+#### Kesimpulan dari program ini adalah pertama kita menjadi program sebagai daemon lalu mendapatkan inputan dari user terkait dengan path lalu bila path tersebut ada maka menjalankan fungsi pencarian_direktori dan saat pencarian_direktori terdapat file .txt maka akan memanggil fungsi mengubah_karakter dan saat ada sebuah string yang sesuai dengan diperintahkan maka string tersebut akan diganti dan aktifitas menggantinya akan di catat pada log. 
+
+
+Command yang digunakan dalam pengerjaan ini adalah : 
+```
+1. sprintf(temp_file, "%s.tmp", filename): Menggabungkan string filename dengan ekstensi .tmp dan menyimpan hasilnya di temp_file.
+2. fopen(filename, "w"): Membuka file filename untuk ditulis.
+3. fgets(line, sizeof(line), original_file): Membaca satu baris dari file original_file dan menyimpannya di dalam buffer line.
+4. strstr(kata, "m4LwAr3"), strstr(kata, "5pYw4R3"), strstr(kata, "R4nS0mWaR3"): Mencari substring dalam string kata yang sesuai dengan pola yang ditentukan.
+5. strncpy(new_kata, "[MALWARE]", strlen("[MALWARE]")), strncpy(new_kata, "[SPYWARE]", strlen("[SPYWARE]")), strncpy(new_kata, "[RANSOMWARE]", strlen("[RANSOMWARE]")): Mengganti substring yang ditemukan dengan label yang sesuai.
+6. fputs(line, file): Menulis satu baris ke dalam file file.
+7. remove(filename): Menghapus file filename.
+8. rename(temp_file, filename): Mengubah nama file sementara temp_file menjadi filename.
+9. time(NULL): Mendapatkan waktu saat ini dalam bentuk timestamp.
+10. localtime(&current_time): Mengonversi timestamp menjadi struktur tm yang berisi informasi waktu lokal.
+11. fprintf(log_file, "[%02d-%02d-%04d][%02d:%02d:%02d] Suspicious string at %s successfully replaced!\n", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900, tm.tm_hour, tm.tm_min, tm.tm_sec, filename): Mencetak pesan ke dalam file log dengan format yang telah ditentukan.
+12. opendir(directory_path): Membuka direktori yang ditentukan.
+13. readdir(dir): Membaca entri dari direktori yang telah dibuka.
+14. closedir(dir): Menutup direktori yang telah dibuka.
+15. pid = fork(): Membuat proses baru.
+16. setsid(): Mengatur session ID.
+17. umask(0): Mengatur file creation mask.
+18. chdir("/"): Mengubah working directory.
+19. close(STDIN_FILENO), close(STDOUT_FILENO), berfungsi untuk menutup file-file. 
+20. sleep(15): Menunda eksekusi program selama 15 detik.
+```
 
 ## ***Dokumentasi***
 
