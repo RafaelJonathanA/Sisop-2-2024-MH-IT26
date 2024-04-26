@@ -841,5 +841,10 @@ Fungsi utama program.
 - Jika argumen tidak valid, program mencetak pesan kesalahan.
   
 ## ***Dokumentasi***
+![Screenshot (340)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150430084/3345e8f9-812e-4603-bfff-44125c249ddc)
+![Screenshot (341)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150430084/0eee9cb1-9b07-4bd8-b7c1-21fd9b187b30)
+![Screenshot (342)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150430084/c394fd92-4e57-46be-a086-a39f0bd7215e)
+![Screenshot (343)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150430084/c56fad9a-d850-4b57-9594-4fd802c749de)
+
 
 NB: Semua soal tidak boleh dikerjakan menggunakan fungsi **system()**. Di utamakan menggunakan fungsi **fork()** atau **exec()**.
