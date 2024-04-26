@@ -674,15 +674,14 @@ return 0;
 }
 ```
 ## ***PENJELASAN PENGERJAAN***
+
 *Salomo ingin dapat membuka berbagai macam aplikasi dengan banyak jendela aplikasi dalam satu command. Namai file program tersebut setup.c*
 
-Pertama mkdir untuk membuat directory, disini saya menamai direktori dengan soal4, kemudian nano untuk membuat text book yang dinamai dengan setup.c sesuai dengan keterangan soal
-`mkdir soal4`
-`nano setup.c`
+Pertama mkdir untuk membuat directory, disini saya menamai direktori dengan soal4, kemudian nano untuk membuat text book yang dinamai dengan setup.c sesuai dengan keterangan soal `mkdir soal4` `nano setup.c`
 
 *Program C sesuai yang diminta di soal beserta penjelasan fungsi fungsi pada programnya*
 
-Pertama kita buat untuk `Library` program C
+Buat untuk `Library` program C
 
 - #include <stdio.h> = untuk input-output program c
 
