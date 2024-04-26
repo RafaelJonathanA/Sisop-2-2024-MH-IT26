@@ -681,8 +681,9 @@ Pertama mkdir untuk membuat directory, disini saya menamai direktori dengan soal
 `nano setup.c`
 
 *Program C sesuai yang diminta di soal beserta penjelasan fungsi fungsi pada programnya*
-Pertama kita buat untuk program C
-`Library`
+
+Pertama kita buat untuk `Library` program C
+
 - #include <stdio.h> = untuk input-output program c
 
 - #include <stdlib.h> = untuk fungsi-fungsi umum seperti alokasi memori dan konversi
