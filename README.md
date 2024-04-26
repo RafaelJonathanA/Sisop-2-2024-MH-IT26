@@ -1078,7 +1078,7 @@ Buat untuk `Library` program C
 ```
 void save_running_app(pid_t pid)
 ```
-Fungsi save_running_app(pid_t pid) berfungsi untuk menyimpan PID aplikasi yang sedang berjalan ke dalam file log
+- Fungsi save_running_app(pid_t pid) berfungsi untuk menyimpan PID aplikasi yang sedang berjalan ke dalam file log
 ```
 void open_app(char *app_name, int num_windows, pid_t *pids, int *pid_count) {
     for (int i = 0; i < num_windows; i++) {
