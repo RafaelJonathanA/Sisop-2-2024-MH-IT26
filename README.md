@@ -681,7 +681,7 @@ Library yang Digunakan:
 ```
 int running_flag = 1;
 ```
-Variabel ini digunakan untuk mengontrol status pemantauan. Jika bernilai 1, pemantauan akan berjalan. Jika bernilai 0, pemantauan akan dihentikan.
+- Variabel ini digunakan untuk mengontrol status pemantauan. Jika bernilai 1, pemantauan akan berjalan. Jika bernilai 0, pemantauan akan dihentikan.
 ```
 void write_to_log(const char *username, const char *activity, int status) {
     char log_filename[100];
@@ -704,7 +704,7 @@ void write_to_log(const char *username, const char *activity, int status) {
     fclose(log_file);
 }
 ```
-Fungsi ini digunakan untuk menulis kegiatan pengguna ke file log. Parameter yang diterima adalah username pengguna, aktivitas yang dilakukan, dan status aktivitas (jalan atau gagal).
+- Fungsi ini digunakan untuk menulis kegiatan pengguna ke file log. Parameter yang diterima adalah username pengguna, aktivitas yang dilakukan, dan status aktivitas (jalan atau gagal).
 ```
 void stop_monitoring(const char *username) {
     char log_message[100];
@@ -732,7 +732,7 @@ void stop_monitoring(const char *username) {
     }
 }
 ```
-Fungsi ini bertanggung jawab untuk menghentikan pemantauan yang sedang berjalan untuk pengguna tertentu. Pertama, fungsi ini membaca PID proses pemantauan dari file log pengguna. Kemudian, fungsi ini mengirim sinyal SIGTERM ke proses pemantauan untuk menghentikannya.
+- Fungsi ini bertanggung jawab untuk menghentikan pemantauan yang sedang berjalan untuk pengguna tertentu. Pertama, fungsi ini membaca PID proses pemantauan dari file log pengguna. Kemudian, fungsi ini mengirim sinyal SIGTERM ke proses pemantauan untuk menghentikannya.
 ```
 void monitor_activities(const char *username) {
     // Membuat handle untuk memantau direktori home pengguna
@@ -776,7 +776,7 @@ void monitor_activities(const char *username) {
     close(inotify_fd);
 }
 ```
-Fungsi ini melakukan pemantauan aktivitas pengguna dalam direktori home mereka menggunakan inotify. Setiap kali ada perubahan dalam direktori home pengguna, seperti pembuatan atau penghapusan file, aktivitas tersebut dicatat ke file log.
+- Fungsi ini melakukan pemantauan aktivitas pengguna dalam direktori home mereka menggunakan inotify. Setiap kali ada perubahan dalam direktori home pengguna, seperti pembuatan atau penghapusan file, aktivitas tersebut dicatat ke file log.
 ```
 // Fungsi menggagalkan kegiatan pengguna
 void fail_activities(const char *username) {
@@ -839,7 +839,7 @@ int main(int argc, char *argv[]) {
 return 0;
 }
 ```
-Fungsi main adalah titik masuk utama program. Program ini menerima argumen dari baris perintah yang menentukan tindakan apa yang harus dilakukan (memulai, menghentikan, menggagalkan, atau mengaktifkan kembali pemantauan) dan pengguna mana yang akan dipantau. Berdasarkan argumen yang diberikan, program akan menjalankan fungsi yang sesuai.
+- Fungsi main adalah titik masuk utama program. Program ini menerima argumen dari baris perintah yang menentukan tindakan apa yang harus dilakukan (memulai, menghentikan, menggagalkan, atau mengaktifkan kembali pemantauan) dan pengguna mana yang akan dipantau. Berdasarkan argumen yang diberikan, program akan menjalankan fungsi yang sesuai.
 
 ## ***REVISI***
 Penambahan fungsi baru untuk membuka dan memblokir ping saat membuka aplikasi 
@@ -855,40 +855,9 @@ void unblock_ping() {
     system("sudo iptables -D OUTPUT -p icmp --icmp-type echo-request -j DROP");
     printf("Ping telah dibuka\n");
 }
-
-int main(int argc, char *argv[]) {
-    if (argc < 3) {
-        fprintf(stderr, "Usage: %s [-m | -s | -c | -a] <username>\n", argv[0]);
-        return 1;
-    }
-    const char *username = argv[2];
-    if (strcmp(argv[1], "-m") == 0) {
-        printf("Memulai pemantauan untuk pengguna %s\n", username);
-        // Jalankan fitur daemon
-        pid_t pid = fork();
-        if (pid < 0) {
-            perror("Error forking");
-            exit(EXIT_FAILURE);
-        }
-        if (pid > 0) {
-            printf("Pemantauan dimulai. PID proses pemantauan: %d\n", pid);
-            write_to_log(username, "Memulai pemantauan", 1, pid);
-            exit(EXIT_SUCCESS); // Keluar parent process
-        }
-        // Child process jadi leader
-        if (setsid() < 0) {
-            perror("Error creating new session");
-            exit(EXIT_FAILURE);
-        }
-        close(STDIN_FILENO);
-        close(STDOUT_FILENO);
-        close(STDERR_FILENO);
-        // Pemilihan proses pengguna
-        monitor_activities(username);
-    } else if (strcmp(argv[1], "-s") == 0) {
-        printf("Menghentikan pemantauan untuk pengguna %s\n", username);
-        // Mematikan fitur daemon
-        stop_monitoring(username);
+```
+- Kedua fungsi yang ditambahkan diatas akan membuka dan meblokir ping, kita dapat mengeceknya menggunakan ping (aplikasi)
+```
     } else if (strcmp(argv[1], "-c") == 0) {
         printf("Menggagalkan kegiatan pengguna %s\n", username);
         // Menggagalkan kegiatan pengguna
@@ -908,8 +877,16 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 ```
-## ***Dokumentasi***
+- memanggil fungsi void yang untuk membuka dan memblokir ping dengan memasukkan ke else if untuk -c dan -a
 
+## ***Dokumentasi***
+![Screenshot (345)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150430084/4b69ccaa-8159-4ee3-98cc-3591eef73b3f)
+![Screenshot (344)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150430084/b006bb04-4386-4516-b43e-e488c476372b)
+![Screenshot (346)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150430084/ab9ffe1f-b423-4c29-87d9-df531fe79964)
+![Screenshot (347)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150430084/273edf27-6851-4ce3-8014-c696066d1df5)
+![Screenshot (348)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150430084/85aa434b-594b-4839-b72d-75664087b7e1)
+![Screenshot (349)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150430084/baa7ddb5-6de7-46b5-ad39-9510df01948a)
+![Screenshot (350)](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/150430084/8ee24d49-ba46-46c7-9c0e-2516a035a712)
 
 ## ***SOAL 4 (Fidel)***
 Salomo memiliki passion yang sangat dalam di bidang sistem operasi. Saat ini, dia ingin mengotomasi kegiatan-kegiatan yang ia lakukan agar dapat bekerja secara efisien. Bantulah Salomo untuk membuat program yang dapat mengotomasi kegiatan dia!
