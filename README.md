@@ -506,6 +506,73 @@ E. Ketika proses yang dijalankan user digagalkan, program juga akan melog dan me
 
 ## ***PENJELASAN PENGERJAAN***
 
+## ***REVISI***
+Penambahan fungsi untuk membuka dan memblokir ping saat membuka aplikasi
+```
+// Fungsi memblokir ping
+void block_ping() {
+    system("sudo iptables -A OUTPUT -p icmp --icmp-type echo-request -j DROP");
+    printf("Ping telah diblokir\n");
+}
+
+// Fungsi membuka blokir ping
+void unblock_ping() {
+    system("sudo iptables -D OUTPUT -p icmp --icmp-type echo-request -j DROP");
+    printf("Ping telah dibuka\n");
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 3) {
+        fprintf(stderr, "Usage: %s [-m | -s | -c | -a] <username>\n", argv[0]);
+        return 1;
+    }
+    const char *username = argv[2];
+    if (strcmp(argv[1], "-m") == 0) {
+        printf("Memulai pemantauan untuk pengguna %s\n", username);
+        // Jalankan fitur daemon
+        pid_t pid = fork();
+        if (pid < 0) {
+            perror("Error forking");
+            exit(EXIT_FAILURE);
+        }
+        if (pid > 0) {
+            printf("Pemantauan dimulai. PID proses pemantauan: %d\n", pid);
+            write_to_log(username, "Memulai pemantauan", 1, pid);
+            exit(EXIT_SUCCESS); // Keluar parent process
+        }
+        // Child process jadi leader
+        if (setsid() < 0) {
+            perror("Error creating new session");
+            exit(EXIT_FAILURE);
+        }
+        close(STDIN_FILENO);
+        close(STDOUT_FILENO);
+        close(STDERR_FILENO);
+        // Pemilihan proses pengguna
+        monitor_activities(username);
+    } else if (strcmp(argv[1], "-s") == 0) {
+        printf("Menghentikan pemantauan untuk pengguna %s\n", username);
+        // Mematikan fitur daemon
+        stop_monitoring(username);
+    } else if (strcmp(argv[1], "-c") == 0) {
+        printf("Menggagalkan kegiatan pengguna %s\n", username);
+        // Menggagalkan kegiatan pengguna
+        fail_activities(username);
+        // Blokir ping
+        block_ping();
+    } else if (strcmp(argv[1], "-a") == 0) {
+        printf("Mengaktifkan kembali kegiatan pengguna %s\n", username);
+        // Mengaktifkan kembali kegiatan pengguna
+        activate_activities(username);
+        // Buka blokir ping
+        unblock_ping();
+    } else {
+        fprintf(stderr, "Invalid option\n");
+        return 1;
+    }
+    return 0;
+}
+```
 ## ***Dokumentasi***
 
 
