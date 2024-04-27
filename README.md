@@ -479,6 +479,42 @@ h. Berikut adalah struktur folder untuk pengerjaan nomor 2:
 #include <syslog.h>
 #include <fcntl.h>
 
+void rename_decrypt(){
+
+  return;
+};
+
+void rename_code(){
+
+  return;
+}
+
+void default_mode(){
+
+  return;
+}
+
+void restore_mode(){
+
+  return;
+}
+
+void backup_ mode(){
+
+  return;
+}
+
+void signal_handling(){
+
+  return;
+} 
+
+void log_history(){
+
+  return;
+}
+
+
 int main(int argc, char *argv[]){
 
   pid_t pid, sid;        // Variabel untuk menyimpan PID
@@ -525,6 +561,13 @@ int main(int argc, char *argv[]){
             wait(NULL);
         }
     }
+
+
+  /*
+  program tersebut belum menyelesaikan tahap dekripsi menggunakan ROT19, program ini juga belum menyelesaikan tahap merename sesuai kode nama filenya
+  dan menghapus sesuai kode nama filenya, tahap backup dan restore file belum selesai, tahap mengganti mode sesuai signal belum selesai,
+  belum menyelesaikan code untuk dimatikan secara aman, dan pencatatan log file belum selesai
+  */
 
 
     return 0;
