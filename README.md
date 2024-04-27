@@ -466,10 +466,146 @@ h. Berikut adalah struktur folder untuk pengerjaan nomor 2:
 ```
 
 ## ***PENGERJAAN***
+```
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <dirent.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <syslog.h>
+#include <fcntl.h>
+
+int main(int argc, char *argv[]){
+
+  pid_t pid, sid;        // Variabel untuk menyimpan PID
+
+  pid = fork();     // Menyimpan PID dari Child Process
+
+  /* Keluar saat fork gagal
+  * (nilai variabel pid < 0) */
+  if (pid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  /* Keluar saat fork berhasil
+  * (nilai variabel pid adalah PID dari child process) */
+  if (pid > 0) {
+    exit(EXIT_SUCCESS);
+  }
+
+  umask(0);
+
+  sid = setsid();
+  if (sid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  close(STDIN_FILENO);
+  //close(STDOUT_FILENO);
+  //close(STDERR_FILENO);
+
+  // program disini
+
+    chdir("/home/abhi/sisop_proc");
+
+    int id_download = fork();
+
+    if (id_download == 0){
+        execlp("wget", "wget", "-q", "--no-check-certificate", "https://docs.google.com/uc?export=download&id=1rUIZmp10lXLtCIH3LAZJzRPeRks3Crup", "-O", "library.zip", NULL);
+    } else {
+        wait(NULL);
+        int id_unzip = fork();
+        if (id_unzip == 0){
+            execlp("unzip", "unzip", "-q", "library.zip", NULL);    
+        } else {
+            wait(NULL);
+        }
+    }
+
+
+    return 0;
+}
+```
 
 ## ***PENJELASAN PENGERJAAN***
+```
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <dirent.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <syslog.h>
+#include <fcntl.h>
+
+int main(int argc, char *argv[]){
+
+  pid_t pid, sid;        // Variabel untuk menyimpan PID
+
+  pid = fork();     // Menyimpan PID dari Child Process
+
+  /* Keluar saat fork gagal
+  * (nilai variabel pid < 0) */
+  if (pid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  /* Keluar saat fork berhasil
+  * (nilai variabel pid adalah PID dari child process) */
+  if (pid > 0) {
+    exit(EXIT_SUCCESS);
+  }
+
+  umask(0);
+
+  sid = setsid();
+  if (sid < 0) {
+    exit(EXIT_FAILURE);
+  }
+
+  close(STDIN_FILENO);
+  //close(STDOUT_FILENO);
+  //close(STDERR_FILENO);
+```
+Pada bagian ini adalah membuat program dapat berjalan di latar belakang dan membuat program tidak dapat berinteraksi dengan user
+hal ini bisa disebut bagian ini membuat program tersebut menjadi program daemon
+```
+    chdir("/home/abhi/sisop_proc");
+
+    int id_download = fork();
+
+    if (id_download == 0){
+        execlp("wget", "wget", "-q", "--no-check-certificate", "https://docs.google.com/uc?export=download&id=1rUIZmp10lXLtCIH3LAZJzRPeRks3Crup", "-O", "library.zip", NULL);
+    } else {
+        wait(NULL);
+        int id_unzip = fork();
+        if (id_unzip == 0){
+            execlp("unzip", "unzip", "-q", "library.zip", NULL);    
+        } else {
+            wait(NULL);
+        }
+    }
+
+
+    return 0;
+}
+```
+Pada bagian tersebut merupakan pengerjaain untuk nomor bagian yang a, yaitu mendownload sebuah file yang ada di google drive lalu
+mengunzip file tersebut. Hal ini dapat saya lakukan dengan menggunakan fork dan execlop, saya membuat dua process (child dan parent process) agar execlp dapat berjalan dengan baik, jika tidak execlp akan menjalankan script bash lalu akan langsung keluar,
+cara membuat execlp dapat berjalan dengan baik adalah dengan membuat child process dan parent process dan jangan lupa kita beri fungsi wait() di parent process agar tidak terjadi overlapping.
+
+Untuk soal-soal setelahnya saya tidak dapat menjawab soal-soal tersebut dikarenakan saya mengalami sakit di saat praktikum berlangsung, dan saya hanya dapat mengerjakan soal bagaian yang a.
 
 ## ***Dokumentasi***
+![Screenshot from 2024-04-27 19-59-44](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/123524655/a2d534ab-aa04-4a1b-b36e-706aaf0f44c4)
+![Screenshot from 2024-04-27 20-00-03](https://github.com/Rafjonath/Sisop-2-2024-MH-IT26/assets/123524655/8753e85d-b5ba-4d24-bc7b-bb688a729f1b)
 
 ## ***SOAL 3 (Fidel)***
 Pak Heze adalah seorang admin yang baik. Beliau ingin membuat sebuah program admin yang dapat memantau para pengguna sistemnya. Bantulah Pak Heze untuk membuat program  tersebut!
