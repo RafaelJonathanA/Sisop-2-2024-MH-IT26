@@ -13,7 +13,7 @@
 + Soal 3 = Danendra Fidel Khansa
 + Soal 4 = Danendra Fidel Khansa
 
-## ***MODUL 1***
+## ***MODUL 2***
   Berikut untuk struktur repository pengumpulan dari hasil praktikum sistem operasi modul 2 :
   ```
 —soal_1:
